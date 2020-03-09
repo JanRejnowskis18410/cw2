@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Xml.Serialization;
 
 namespace Cw2
 {
@@ -33,6 +34,12 @@ namespace Cw2
                 Email="kowalski@wp.pl"
             };
             list.Add(st);
+
+            FileStream writer = new FileStream(@"data.xml", FileMode.Create);
+            XmlSerializer serializer = new XmlSerializer(typeof(List<Student>),
+                                       new XmlRootAttribute("uczelnia"));
+            serializer.Serialize(writer, list);
+            serializer.Serialize(writer, list);
         }
     }
 }
