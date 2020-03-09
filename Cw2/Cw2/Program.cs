@@ -40,6 +40,14 @@ namespace Cw2
                                        new XmlRootAttribute("uczelnia"));
             serializer.Serialize(writer, list);
             serializer.Serialize(writer, list);
+
+            // ----------------------------------------- zadanie -----------------------------------------
+
+            string defaultCSV = "data.csv";
+            string defaultResult = "result.xml";
+            string defaultFiletype = "xml";
+
+
         }
     }
 }

@@ -25,7 +25,5 @@ namespace Cw2.Models
                 _nazwisko = value;
             }
         }
-
-
     }
 }
