@@ -10,44 +10,57 @@ namespace Cw2
     {
         static void Main(string[] args)
         {
-            string path = @"Data\dane.csv";
-            Console.WriteLine("hello world");
-
-            //Wczytywanie pliku
-            var fi = new FileInfo(path);
-            using (var stream = new StreamReader(fi.OpenRead()))
-            {
-                string line = null;
-                while ((line = stream.ReadLine()) != null)
-                {
-                    Console.WriteLine(line);
-                }
-            }
-            // stream.Dispose();
+            string path = @"\dane.csv";
+            string result = @"\result.xml";
+            string default_format = "xml";
 
             //XML
-            var list = new List<Student>();
             var st = new Student
             {
-                Imie="Jan",
-                Nazwisko="Kowalski",
-                Email="kowalski@wp.pl"
+                FirstName = "Jan",
+                LastName = "Kowalski",
+                Birthdate = "03.04.1984",
+                Email = "kowalski@wp.pl",
+                MothersName = "Alina",
+                FathersName = "Andrzej",
+                Studies = new Studies
+                {
+                    Name = "Computer Science",
+                    Mode = "Dzienne"
+                }
             };
-            list.Add(st);
+            var st2 = new Student
+            {
+                FirstName = "Adam",
+                LastName = "Nowak",
+                Birthdate = "05.05.2000",
+                Email = "nowak@wp.pl",
+                MothersName = "Anna",
+                FathersName = "Sebastian",
+                Studies = new Studies
+                {
+                    Name = "New Media Art",
+                    Mode = "Zaoczne"
+                }
+            };
+            Student[] students = { st, st2 };
 
-            FileStream writer = new FileStream(@"data.xml", FileMode.Create);
-            XmlSerializer serializer = new XmlSerializer(typeof(List<Student>),
-                                       new XmlRootAttribute("uczelnia"));
-            serializer.Serialize(writer, list);
-            serializer.Serialize(writer, list);
+            Studies[] studies = { new Studies { NameAttribute = "Computer Science", NumberOfStudents = 1 }, new Studies { NameAttribute = "New Media Art", NumberOfStudents = 1 } };
+            College col = new College
+            {
+                Students = students,
+                ActiveStudies = studies,
+                Author = "Jan Rejnowski",
+                CreatedAt = "12.03.2020"
+            };
 
-            // ----------------------------------------- zadanie -----------------------------------------
-
-            string defaultCSV = "data.csv";
-            string defaultResult = "result.xml";
-            string defaultFiletype = "xml";
-
-
+            FileStream writer = new FileStream(@"data.xml",
+            FileMode.Create);
+            XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
+            ns.Add("", "");
+            XmlSerializer serializer = new XmlSerializer(typeof(College));
+            serializer.Serialize(writer, col, ns);
+            writer.Close();
         }
     }
 }

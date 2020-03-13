@@ -7,23 +7,21 @@ namespace Cw2.Models
 {
     public class Student
     {
-        // prop + tab2x
+        [XmlAttribute(attributeName: "indexNumber")]
+        public int IndexNumber { get; set; }
         [XmlElement(elementName: "fname")]
-        public string Imie { get; set; }
-        [XmlAttribute(attributeName: "email")]
+        public string FirstName { get; set; }
+        [XmlElement(elementName: "lname")]
+        public string LastName { get; set; }
+        [XmlElement(elementName: "birthdate")]
+        public string Birthdate { get; set; }
+        [XmlElement(elementName: "email")]
         public string Email { get; set; }
-
-        //propfull + tabx2
-        private string _nazwisko;
-
-        public string Nazwisko
-        {
-            get { return _nazwisko; }
-            set
-            {
-                if (value == null) throw new ArgumentException();
-                _nazwisko = value;
-            }
-        }
+        [XmlElement(elementName: "mothersName")]
+        public string MothersName { get; set; }
+        [XmlElement(elementName: "fathersName")]
+        public string FathersName { get; set; }
+        [XmlElement(elementName: "studies")]
+        public Studies Studies { get; set; }
     }
 }
