@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Cw2": {
+      "commandName": "Project",
+      "commandLineArgs": "D:\\szkoła\\APBD\\test_pliki\\danegsdg.csv D:\\szkoła\\APBD\\test_pliki\\ok.xml xml"
+    }
+  }
+}

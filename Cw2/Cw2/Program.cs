@@ -1,4 +1,5 @@
-﻿using Cw2.Models;
+﻿using Cw2.Exceptions;
+using Cw2.Models;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,26 +12,83 @@ namespace Cw2
     {
         static void Main(string[] args)
         {
-            string path = @"Data\dane.csv";
+            string pathToData;
+            string pathToResult;
+            string type;
 
-            var fi = new FileInfo(path);
+            string logPath = @"log.txt";
+            if (File.Exists(logPath))
+            {
+                File.Delete(logPath);
+            }
+
+            if (args.Length == 3)
+            {
+                try
+                {
+                    checkIfFileExists(args[0]);
+                }
+                catch (ArgumentException e)
+                {
+                    Console.WriteLine(e);
+                    writeMessageToLog(logPath, "Plik " + args[0] + " nie istnieje!");
+                    Environment.Exit(-1);
+                };
+                pathToData = args[0];
+                pathToResult = args[1];
+                type = args[2];
+            }
+            else
+            {
+                pathToData = @"dane.csv";
+                pathToResult = @"result.xml";
+                type = "xml";
+            }
+
+            var fi = new FileInfo(pathToData);
             ArrayList studentsList = new ArrayList();
             Dictionary<string, ArrayList> studiesInfo = new Dictionary<string, ArrayList>();
+
             using (var stream = new StreamReader(fi.OpenRead()))
             {
                 string line = null;
+                int recordCounter = 1;
                 while ((line = stream.ReadLine()) != null)
                 {
                     string[] kolumny = line.Split(',');
-                    bool check = true;
-                    for (int j = 0; j < kolumny.Length && check; j++)
+
+                    try
                     {
-                        if (String.IsNullOrEmpty(kolumny[j]))
+                        if (kolumny.Length != 9)
                         {
-                            check = false;
+                            throw new WrongNumberOfColumnsException("Kolumna " + recordCounter++ + ": Niewłaściwa liczba kolumn!");
                         }
                     }
-                    if (check)
+                    catch (WrongNumberOfColumnsException e)
+                    {
+                        Console.WriteLine(e);
+                        writeMessageToLog(logPath, e.Message);
+                        continue;
+                    }
+
+                    try
+                    {
+                        for (int j = 0; j < kolumny.Length; j++)
+                        {
+                            if (String.IsNullOrEmpty(kolumny[j]))
+                            {
+                                throw new EmptyColumnException("Kolumna " + recordCounter++ + ": Błąd w danych (puste pole)!");
+                            }
+                        }
+                    }
+                    catch (EmptyColumnException e)
+                    {
+                        Console.WriteLine(e);
+                        writeMessageToLog(logPath, e.Message);
+                        continue;
+                    }
+
+                    try
                     {
                         string[] birthInfo = kolumny[5].Split("-");
                         string birthDateString = birthInfo[2] + "." + birthInfo[1] + "." + birthInfo[0];
@@ -63,14 +121,22 @@ namespace Cw2
                             studentsList.Add(newStudent);
                             if (studiesInfo.ContainsKey(newStudent.Studies.Name))
                             {
-                                    studiesInfo[newStudent.Studies.Name].Add(newStudent.IndexNumber);
+                                studiesInfo[newStudent.Studies.Name].Add(newStudent.IndexNumber);
                             }
                             else
                             {
                                 studiesInfo.Add(newStudent.Studies.Name, new ArrayList());
                                 studiesInfo[newStudent.Studies.Name].Add(newStudent.IndexNumber);
                             }
+                            recordCounter++;
+                        } else
+                        {
+                            throw new StudentAlreadyInFileException("Kolumna " + recordCounter++ + ": Student o podanym indeksie już znajduje się w pliku!");
                         }
+                    } catch (StudentAlreadyInFileException e)
+                    {
+                        Console.WriteLine(e);
+                        writeMessageToLog(logPath, e.Message);
                     }
                 }
             }
@@ -81,8 +147,7 @@ namespace Cw2
             {
                 students[i++] = s;
             }
-            for (int j = 0; j < students.Length; j++)
-                Console.WriteLine(students[j]);
+
 
             i = 0;
             Studies[] studies = new Studies[studiesInfo.Count];
@@ -90,11 +155,8 @@ namespace Cw2
             {
                 studies[i++] = new Studies { NameAttribute = keyValues.Key, NumberOfStudents = keyValues.Value.Count };
             }
-            for (int j = 0; j < studies.Length; j++)
-                Console.WriteLine(studies[j]);
 
             DateTime now = DateTime.Now;
-            Console.WriteLine(now.ToString("d"));
 
             College col = new College
             {
@@ -104,13 +166,15 @@ namespace Cw2
                 CreatedAt = now.ToString("d")
             };
 
-            FileStream writer = new FileStream(@"data.xml",
+            FileStream writer = new FileStream(pathToResult,
             FileMode.Create);
             XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
             ns.Add("", "");
             XmlSerializer serializer = new XmlSerializer(typeof(College));
             serializer.Serialize(writer, col, ns);
             writer.Close();
+
+            Console.WriteLine("Zakończono tworzenie pliku XML!");
         }
 
         public static string DictionaryToString(Dictionary<string, ArrayList> dictionary)
@@ -122,5 +186,21 @@ namespace Cw2
             }
             return dictionaryString.TrimEnd(',', ' ') + "}";
         }
+
+        private static void checkIfFileExists(string path)
+        {
+            if (!File.Exists(path))
+                throw new ArgumentException("Plik " + path + " nie istnieje!");
+        }
+
+        private static void writeMessageToLog(string logPath, String message)
+        {
+            StreamWriter sw = File.AppendText(logPath);
+            using (sw)
+            {
+                sw.WriteLine(message);
+            }
+            sw.Close();
+        }
     }
-}
+};
