@@ -5,6 +5,7 @@ using System.Xml.Serialization;
 
 namespace Cw2.Models
 {
+    [Serializable]
     public class Studies
     {
         [XmlElement(elementName: "name")]
@@ -34,6 +35,11 @@ namespace Cw2.Models
         public bool ShouldSerializeMode()
         {
             return !String.IsNullOrEmpty(Mode);
+        }
+
+        public override string ToString()
+        {
+            return Name + " " + NameAttribute + " " + Mode + " " + NumberOfStudents;
         }
     }
 }

@@ -5,6 +5,7 @@ using System.Xml.Serialization;
 
 namespace Cw2.Models
 {
+    [Serializable]
     [XmlRoot(ElementName = "uczelnia")]
     public class College
     {
