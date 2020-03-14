@@ -13,7 +13,7 @@ namespace Cw2
         static void Main(string[] args)
         {
             string pathToData;
-            string pathToResult;
+            string resultPath;
             string type;
 
             string logPath = @"log.txt";
@@ -35,13 +35,13 @@ namespace Cw2
                     Environment.Exit(-1);
                 };
                 pathToData = args[0];
-                pathToResult = args[1];
+                resultPath = args[1];
                 type = args[2];
             }
             else
             {
                 pathToData = @"dane.csv";
-                pathToResult = @"result.xml";
+                resultPath = @"result.xml";
                 type = "xml";
             }
 
@@ -140,44 +140,13 @@ namespace Cw2
                     }
                 }
             }
-            //XML
-            Student[] students = new Student[studentsList.Count];
-            int i = 0;
-            foreach (Student s in studentsList)
-            {
-                students[i++] = s;
-            }
 
-
-            i = 0;
-            Studies[] studies = new Studies[studiesInfo.Count];
-            foreach (KeyValuePair<string, ArrayList> keyValues in studiesInfo)
-            {
-                studies[i++] = new Studies { NameAttribute = keyValues.Key, NumberOfStudents = keyValues.Value.Count };
-            }
-
-            DateTime now = DateTime.Now;
-
-            College col = new College
-            {
-                Students = students,
-                ActiveStudies = studies,
-                Author = "Jan Rejnowski",
-                CreatedAt = now.ToString("d")
-            };
-
-            FileStream writer = new FileStream(pathToResult,
-            FileMode.Create);
-            XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
-            ns.Add("", "");
-            XmlSerializer serializer = new XmlSerializer(typeof(College));
-            serializer.Serialize(writer, col, ns);
-            writer.Close();
+            XMLParser.createXmlFile(studentsList, studiesInfo, resultPath);
 
             Console.WriteLine("Zakończono tworzenie pliku XML!");
         }
 
-        public static string DictionaryToString(Dictionary<string, ArrayList> dictionary)
+        private static string DictionaryToString(Dictionary<string, ArrayList> dictionary)
         {
             string dictionaryString = "{";
             foreach (KeyValuePair<string, ArrayList> keyValues in dictionary)
